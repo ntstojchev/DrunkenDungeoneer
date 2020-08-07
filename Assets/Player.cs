@@ -166,6 +166,8 @@ public class Player : MonoBehaviour
 
 			CheckForInteractivity();
 
+			CheckForSoberUp();
+
 			yield return new WaitForSeconds(Speed);
 		}
 
@@ -182,7 +184,12 @@ public class Player : MonoBehaviour
 			SetCoins(UnityEngine.Random.Range(0, 100));
 		}
 		else if (_currentCell.InteractiveState == Cell.CellInteractiveState.Web) {
-			SetSpeed(LowSpeed);
+			if (SpeedItems > 0) {
+				ConsumeSpeed();
+			}
+			else {
+				SetSpeed(LowSpeed);
+			}
 
 			_speedChanged = true;
 			_speedBuffStartTime = Time.time;
@@ -231,8 +238,14 @@ public class Player : MonoBehaviour
 				UI.HPText.text = Health.ToString();
 
 				if (Health <= 0) {
-					StopAllCoroutines();
-					DrunkardDead?.Invoke();
+
+					if (HealItems > 0) {
+						ConsumeHeal();
+					}
+					else {
+						StopAllCoroutines();
+						DrunkardDead?.Invoke();
+					}
 				}
 			}
 		}
@@ -241,7 +254,23 @@ public class Player : MonoBehaviour
 			UI.HPText.text = Health.ToString();
 
 			if (Health <= 0) {
-				DrunkardDead?.Invoke();
+
+				if (HealItems > 0) {
+					ConsumeHeal();
+				}
+				else {
+					StopAllCoroutines();
+					DrunkardDead?.Invoke();
+				}
+			}
+		}
+	}
+
+	private void CheckForSoberUp()
+	{
+		if (!_soberUp && UI.SoberButton.interactable) {
+			if (UnityEngine.Random.Range(0, 101) < 7) {
+				SoberUp();
 			}
 		}
 	}
